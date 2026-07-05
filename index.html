@@ -1,6 +1,133 @@
 <!DOCTYPE html>
-<html>
-<body style="margin:0; padding:0; overflow:hidden;">
-    <iframe src="https://github.io" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; z-index:999;"></iframe>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アイスクリッカー</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        #ice-cream {
+            font-size: 100px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+            display: inline-block;
+            margin: 20px;
+        }
+        #ice-cream:active {
+            transform: scale(0.9);
+        }
+        .shop-item {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px auto;
+            width: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 5px 10px;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🍦 アイスクリッカー 🍦</h1>
+    <h2>所持コイン: <span id="coin-count">0</span> コイン</h2>
+    <p>毎秒自動で増える量 (CPS): <span id="cps-count">0</span></p>
+
+    <!-- クリック対象のアイス（絵文字） -->
+    <div id="ice-cream">🍦</div>
+
+    <h3>ショップ</h3>
+    
+    <!-- アイテム1: トッピング（クリックパワーアップ） -->
+    <div class="shop-item">
+        <p>チョコトッピング (クリック+1)</p>
+        <p>価格: <span id="item1-cost">15</span> コイン</p>
+        <button id="buy-item1" onclick="buyItem1()">購入</button>
+    </div>
+
+    <!-- アイテム2: 自動アイス製造機（放置で毎秒+1） -->
+    <div class="shop-item">
+        <p>自動アイス機 (毎秒+1コいん)</p>
+        <p>価格: <span id="item2-cost">100</span> コイン</p>
+        <button id="buy-item2" onclick="buyItem2()">購入</button>
+    </div>
+
+    <script>
+        // --- ゲームのデータ（状態） ---
+        let coins = 0;
+        let clickPower = 1;
+        let cps = 0; // 1秒間に増えるコイン
+
+        let item1Cost = 15;
+        let item2Cost = 100;
+
+        // --- 画面を更新する関数 ---
+        function updateDisplay() {
+            document.getElementById('coin-count').innerText = Math.floor(coins);
+            document.getElementById('cps-count').innerText = cps;
+            document.getElementById('item1-cost').innerText = item1Cost;
+            document.getElementById('item2-cost').innerText = item2Cost;
+
+            // ボタンの有効・無効化
+            document.getElementById('buy-item1').disabled = coins < item1Cost;
+            document.getElementById('buy-item2').disabled = coins < item2Cost;
+        }
+
+        // --- アイスをクリックした時の処理 ---
+        document.getElementById('ice-cream').addEventListener('click', () => {
+            coins += clickPower;
+            updateDisplay();
+        });
+
+        // --- アイテム1の購入 ---
+        function buyItem1() {
+            if (coins >= item1Cost) {
+                coins -= item1Cost;
+                clickPower += 1;
+                item1Cost = Math.ceil(item1Cost * 1.15); // 次の価格を15%値上げ
+                updateDisplay();
+            }
+        }
+
+        // --- アイテム2の購入 ---
+        function buyItem2() {
+            if (coins >= item2Cost) {
+                coins -= item2Cost;
+                cps += 1;
+                item2Cost = Math.ceil(item2Cost * 1.15); // 次の価格を15%値上げ
+                updateDisplay();
+            }
+        }
+
+        // --- 自動化（毎秒の処理） ---
+        setInterval(() => {
+            if (cps > 0) {
+                coins += cps;
+                updateDisplay();
+            }
+        }, 1000); // 1000ミリ秒＝1秒ごと
+
+        // 起動時に一回画面を更新
+        updateDisplay();
+    </script>
 </body>
 </html>
